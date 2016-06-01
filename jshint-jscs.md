@@ -1,9 +1,13 @@
-#jsHint Config
+#Code Checkers: jsHint, jscs, scssLint, html5lint
 
-Check oficial [jsHint github page](https://github.com/jshint/jshint)
-Check [documentation page](http://jshint.com/docs/)
-Check [options page](http://jshint.com/docs/options/)
-Check [API page](http://jshint.com/docs/api/)
+
+
+##jsHint Config
+
+- Check oficial [jsHint github page](https://github.com/jshint/jshint)
+- Check [documentation page](http://jshint.com/docs/)
+- Check [options page](http://jshint.com/docs/options/)
+- Check [API page](http://jshint.com/docs/api/)
 
 .jshintrc
 ```javascript
@@ -32,10 +36,10 @@ Check [API page](http://jshint.com/docs/api/)
 }
 ```
 
-#jscs Config
+##jscs Config
 
-Check oficial [jscs web site](http://jscs.info/)
-Check [rules page](http://jscs.info/rules)
+- Check oficial [jscs web site](http://jscs.info/)
+- Check [rules page](http://jscs.info/rules)
 
 .jscsrc
 ```javascript
@@ -149,20 +153,26 @@ Check [rules page](http://jscs.info/rules)
 }
 ```
 
-##How do we configure the jsHint and jscs reports with Gulp?
+##Html5 Lint Config
+Basically the only thing needed is installing the gulp plugin.  No config file is required though there are options you can check in the html5-lint mozilla repository: [https://github.com/mozilla/html5-lint](https://github.com/mozilla/html5-lint)
+
+##How do we configure the jsHint, jscs and html5 reports with Gulp?
 
 We first must install the npm plugins:
 ```javascript
-npm install gulp-jshint gulp-jscs gulp-jscs-stylish --save-dev
+npm install gulp-jshint gulp-jscs gulp-jscs-stylish gulp-html5-lint --save-dev
 ```
 Then we import the packages to our gulpfile.js
 ```javascript
-var jshint = require("gulp-jshint");
+var html5Lint = require('gulp-html5-lint');
+var jshint = require('gulp-jshint');
 var jscs = require('gulp-jscs');
-var stylish = require("gulp-jscs-stylish");
+var stylish = require('gulp-jscs-stylish');
 ```
 Then, in the scripts task we do:
 ```javascript
+
+// Make sure you edit your scripts task like this
 gulp.task('scripts', function () {
   gulp
     .src(['source/_scripts/app/**/*.js'])
@@ -179,5 +189,19 @@ gulp.task('scripts', function () {
     .pipe(gulp.dest('source/scripts/'))
     .pipe(gulp.dest('_site/scripts/'))
     .pipe(browserSync.reload({stream: true}));
+});
+
+// Create this new task
+gulp.task('html5-lint', function() {
+    return gulp.src('./_site/*.html')
+        .pipe(html5Lint());
+});
+
+// Add the html5 task to the watcher list
+gulp.task('watch', function () {
+  gulp.watch('source/_sass/**/*', ['sass']);
+  gulp.watch('source/_scripts/app/**/*.js', ['scripts']);
+  gulp.watch(['source/*.html', 'source/_layouts/**/*', 'source/_includes/**/*', 'source/assets/**/*'], ['jekyll-rebuild']);
+  gulp.watch('_site/*.html', ['html5-lint'])
 });
 ```
